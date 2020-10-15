@@ -1,17 +1,75 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import { createStore } from "redux";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+const form = document.querySelector('form');
+const input = document.querySelector('input');
+const ul = document.querySelector('ul');
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+const ADD_TODO = 'ADD_TODO';
+const DELETE_TODO = 'DELETE_TODO';
+
+const addTodo = text => {
+  return {
+    type: ADD_TODO,
+    text
+  };
+};
+
+const deleteToDo = id => {
+  return {
+    type: DELETE_TODO,
+    id
+  };
+};
+
+const reducer = (states = [], action) => {
+  switch (action.type) {
+    case ADD_TODO:
+      states = [{ text: action.text, id: Date.now() }, ...states];
+      break;
+    case DELETE_TODO:
+      states = states.filter(state => state.id !== action.id);
+      break;
+    default:
+      break;
+  }
+
+  return states;
+};
+
+const store = createStore(reducer);
+
+const dispatchAddTodo = (text) => {
+  store.dispatch(addTodo(text));
+};
+
+const dispatchDeleteTodo = (evt) => {
+  const id = parseInt(evt.target.parentNode.id);
+  store.dispatch(deleteToDo(id));
+};
+
+const paintToDos = () => {
+  const toDos = store.getState();
+  ul.innerHTML = '';
+  toDos.forEach(toDo => {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.innerText = 'DEL';
+    btn.addEventListener('click', dispatchDeleteTodo);
+    li.id = toDo.id;
+    li.innerText = toDo.text;
+    li.appendChild(btn);
+    ul.appendChild(li);
+  });
+};
+
+store.subscribe(paintToDos);
+
+const onSubmit = (evt) => {
+  evt.preventDefault();
+
+  const text = input.value;
+  input.value = '';
+  dispatchAddTodo(text);
+};
+
+form.addEventListener('submit', onSubmit);
