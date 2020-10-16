@@ -11,6 +11,7 @@ function Home({ toDos, addTodo }) {
 
   function onSubmit(e) {
     e.preventDefault();
+    addTodo(text);
     setText('');
   }
 
