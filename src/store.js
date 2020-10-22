@@ -1,7 +1,7 @@
 import { createStore } from "redux";
-import { configureStore, createAction, createReducer } from "@reduxjs/toolkit";
+import { configureStore, createAction, createReducer, createSlice } from "@reduxjs/toolkit";
 
-const addToDo = createAction('ADD');
+/* const addToDo = createAction('ADD');
 const deleteTodo = createAction('DELETE');
 
 const reducer = createReducer([], {
@@ -9,13 +9,19 @@ const reducer = createReducer([], {
     state.push({ text: action.payload, id: Date.now() });
   },
   [deleteTodo]: (state, action) => state.filter(toDo => toDo.id !== action.payload)
-});
+}); */
 
-const store = configureStore({ reducer });
+const toDos = createSlice({
+  name: 'toDoReducer',
+  initialState: [],
+  reducers: {
+    add: (state, action) => {
+      state.push({ text: action.payload, id: Date.now() });
+    },
+    remove: (state, action) => state.filter(toDo => toDo.id !== action.payload)
+  }
+})
 
-export const actionCreators = {
-  addToDo,
-  deleteTodo
-};
+export const { add, remove } = toDos.actions;
 
-export default store;
+export default configureStore({ reducer: toDos.reducer });
